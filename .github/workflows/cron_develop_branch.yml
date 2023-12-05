@@ -1,8 +1,11 @@
-name: Package latest
+name: Package develop branch
 on:
   push:
   schedule:
     - cron:  '0 * * * *'
+
+env:
+  BRANCH: develop
 
 jobs:
   docker:
@@ -24,10 +27,10 @@ jobs:
     - name: Set environment variables
       id: env
       run: |
-        VERSION=$(curl -sL "http://services.sonarr.tv/v1/releases" | jq -r "first(.[]).version")
+        VERSION=$(curl -sL "http://services.sonarr.tv/v1/releases" | jq -r 'first(.[] | select(.branch==env.BRANCH)) | .version')
         echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
-        BRANCH=$(curl -sL "http://services.sonarr.tv/v1/releases" | jq -r "first(.[]).branch")
-        echo "BRANCH=${BRANCH}" >> $GITHUB_OUTPUT
+      env:
+        BRANCH: ${{ env.BRANCH }}
 
     - name: Login to GitHub Container Registry
       uses: docker/login-action@v3
@@ -63,7 +66,7 @@ jobs:
       if: ${{ steps.image_exists.outputs.tag != 'found' }}
       with:
         build-args: |
-          BRANCH=${{ steps.env.outputs.BRANCH }}
+          BRANCH=${{ env.BRANCH }}
           VERSION=${{ steps.env.outputs.VERSION }}
         context: .
         platforms: linux/${{ matrix.arch }}

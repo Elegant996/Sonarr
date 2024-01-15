@@ -2,10 +2,10 @@ name: Package develop branch
 on:
   push:
   schedule:
-    - cron:  '10 * * * *'
+    - cron:  '0 * * * *'
 
 env:
-  BRANCH: develop
+  BRANCH: main
 
 jobs:
   docker:
@@ -52,7 +52,7 @@ jobs:
       with:
         registry: ghcr.io
         repository: ${{ steps.repo_slug.outputs.result }}
-        tag: ${{ steps.env.outputs.VERSION }}-${{ env.BRANCH }}
+        tag: ${{ steps.env.outputs.VERSION }}
     
     - uses: actions/checkout@v4
       if: ${{ steps.image_exists.outputs.tag != 'found' }}
@@ -73,4 +73,5 @@ jobs:
         push: true
         tags: |
           ghcr.io/${{ steps.repo_slug.outputs.result }}:${{ steps.env.outputs.VERSION }}-${{ env.BRANCH }}
+          ghcr.io/${{ steps.repo_slug.outputs.result }}:${{ steps.env.outputs.VERSION }}
           ghcr.io/${{ steps.repo_slug.outputs.result }}:${{ env.BRANCH }}

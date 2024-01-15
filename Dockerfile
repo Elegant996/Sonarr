@@ -1,6 +1,4 @@
-ARG ALPINE_IMAGE=alpine:latest
-
-FROM ${ALPINE_IMAGE} as stage
+FROM alpine:3.19 as stage
 
 ARG BRANCH
 ARG VERSION
@@ -9,11 +7,15 @@ RUN apk add --no-cache \
     curl \
     xz
 RUN mkdir -p /opt/Sonarr
-RUN curl -o /tmp/sonarr.tar.gz -sL "https://download.sonarr.tv/v4/${BRANCH}/${VERSION}/Sonarr.develop.${VERSION}.linux-musl-x64.tar.gz"
+RUN if [ "${BRANCH}" = "main" ]; then \
+      curl -o /tmp/sonarr.tar.gz -sL "https://download.sonarr.tv/v4/${BRANCH}/${VERSION}/Sonarr.${BRANCH}.${VERSION}.linux-musl-x64.tar.gz"; \
+    elif [ "${BRANCH}" = "develop" ]; then \
+      curl -o /tmp/sonarr.tar.gz -sL "https://github.com/Sonarr/Sonarr/releases/download/v${VERSION}/Sonarr.${BRANCH}.${VERSION}.linux-musl-x64.tar.gz"; \
+    fi
 RUN tar xzf /tmp/sonarr.tar.gz -C /opt/Sonarr --strip-components=1
 RUN rm -rf /opt/Sonarr/Sonarr.Update /tmp/*
 
-FROM ${ALPINE_IMAGE} as mirror
+FROM alpine:3.19 as mirror
 
 RUN mkdir -p /out/etc/apk && cp -r /etc/apk/* /out/etc/apk/
 RUN apk add --no-cache --initdb -p /out \

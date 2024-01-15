@@ -2,10 +2,10 @@ name: Package develop branch
 on:
   push:
   schedule:
-    - cron:  '10 * * * *'
+    - cron:  '0 * * * *'
 
 env:
-  BRANCH: develop
+  BRANCH: main
 
 jobs:
   docker:

@@ -45,6 +45,12 @@ jobs:
       with:
         result-encoding: string
         script: return '${{ github.repository }}'.toLowerCase()
+  
+    - name: Remove Docker Tag
+      uses: rafalkk/remove-dockertag-action@v1
+      with:
+        tag-name: ${{ steps.env.outputs.VERSION }}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Check if image exists
       uses: tyriis/docker-image-tag-exists@v2.0.1

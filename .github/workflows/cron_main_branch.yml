@@ -75,3 +75,4 @@ jobs:
           ghcr.io/${{ steps.repo_slug.outputs.result }}:${{ steps.env.outputs.VERSION }}-${{ env.BRANCH }}
           ghcr.io/${{ steps.repo_slug.outputs.result }}:${{ steps.env.outputs.VERSION }}
           ghcr.io/${{ steps.repo_slug.outputs.result }}:${{ env.BRANCH }}
+          ghcr.io/${{ steps.repo_slug.outputs.result }}:latest

@@ -27,7 +27,8 @@ jobs:
     - name: Set environment variables
       id: env
       run: |
-        VERSION=$(curl -sL "http://services.sonarr.tv/v1/releases" | jq -r 'first(.[] | select(.branch==env.BRANCH)) | .version')
+        read PACKAGE VERSION < <(echo $(curl -sL "http://services.sonarr.tv/v1/releases" | jq -r 'first(.[] | select(.branch==env.BRANCH)) | .linuxMusl.x64.archive.url, .version'))
+        echo "PACKAGE=${PACKAGE}" >> $GITHUB_OUTPUT
         echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
       env:
         BRANCH: ${{ env.BRANCH }}
@@ -66,7 +67,7 @@ jobs:
       if: ${{ steps.image_exists.outputs.tag != 'found' }}
       with:
         build-args: |
-          BRANCH=${{ env.BRANCH }}
+          PACKAGE=${{ steps.env.outputs.PACKAGE }}
           VERSION=${{ steps.env.outputs.VERSION }}
         context: .
         platforms: linux/${{ matrix.arch }}

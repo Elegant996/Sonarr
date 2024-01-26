@@ -1,17 +1,13 @@
 FROM alpine:3.19 as stage
 
-ARG BRANCH
+ARG PACKAGE
 ARG VERSION
 
 RUN apk add --no-cache \
     curl \
     xz
 RUN mkdir -p /opt/Sonarr
-RUN if [ "${BRANCH}" = "main" ]; then \
-      curl -o /tmp/sonarr.tar.gz -sL "https://download.sonarr.tv/v4/${BRANCH}/${VERSION}/Sonarr.${BRANCH}.${VERSION}.linux-musl-x64.tar.gz"; \
-    elif [ "${BRANCH}" = "develop" ]; then \
-      curl -o /tmp/sonarr.tar.gz -sL "https://github.com/Sonarr/Sonarr/releases/download/v${VERSION}/Sonarr.${BRANCH}.${VERSION}.linux-musl-x64.tar.gz"; \
-    fi
+RUN curl -o /tmp/sonarr.tar.gz -sL "${PACKAGE}"
 RUN tar xzf /tmp/sonarr.tar.gz -C /opt/Sonarr --strip-components=1
 RUN rm -rf /opt/Sonarr/Sonarr.Update /tmp/*
 
@@ -43,6 +39,9 @@ ENV HOME /data
 WORKDIR $HOME
 CMD ["/opt/Sonarr/Sonarr", "-nobrowser", "-data=/data"]
 
-LABEL org.opencontainers.image.source="https://github.com/Sonarr/Sonarr"
 LABEL org.opencontainers.image.description="Smart PVR for newsgroup and bittorrent users."
 LABEL org.opencontainers.image.licenses="GPL-3.0-only"
+LABEL org.opencontainers.image.source="https://github.com/Sonarr/Sonarr"
+LABEL org.opencontainers.image.title="Sonarr"
+LABEL org.opencontainers.image.version="${VERSION}"
+LABEL org.opencontainers.image.url="https://sonarr.tv/"

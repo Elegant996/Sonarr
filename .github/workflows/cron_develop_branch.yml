@@ -75,3 +75,11 @@ jobs:
         tags: |
           ghcr.io/${{ steps.repo_slug.outputs.result }}:${{ steps.env.outputs.VERSION }}-${{ env.BRANCH }}
           ghcr.io/${{ steps.repo_slug.outputs.result }}:${{ env.BRANCH }}
+
+    - uses: actions/delete-package-versions@v5
+      if: ${{ steps.image_exists.outputs.tag != 'found' }}
+      with: 
+        package-name: 'sonarr'
+        package-type: 'container'
+        min-versions-to-keep: 0
+        delete-only-untagged-versions: 'true'

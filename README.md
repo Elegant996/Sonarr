@@ -3,8 +3,16 @@ Sonarr is a PVR for Usenet and BitTorrent users. It can monitor multiple RSS fee
 
 Docker
 -----------------------------------------------
-This repo will periodically check Sonarr for updates and build a container image from scratch using an Alpine base layout:
+This repo will periodically check Sonarr for updates and build a container image from scratch using an Alpine base layout.
 
+For `main` branch releases use:
 ```
-docker pull ghcr.io/elegant996/sonarr:latest
+docker pull ghcr.io/elegant996/sonarr:4.0.5.1710
+docker pull ghcr.io/elegant996/sonarr:main
+```
+
+For `develop` branch pre-releases use:
+```
+docker pull ghcr.io/elegant996/sonarr:4.0.5.1782
+docker pull ghcr.io/elegant996/sonarr:develop
 ```

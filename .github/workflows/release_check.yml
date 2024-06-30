@@ -17,7 +17,7 @@ jobs:
   mainBuild:
     name: 'Build main branch'
     uses:  ./.github/workflows/build_release.yml
-    if: ${{ needs.mainPoll.outputs.updateRequired }}
+    if: ${{ needs.mainPoll.outputs.updateRequired == true }}
     needs: 
     - mainPoll
     with:
@@ -33,7 +33,7 @@ jobs:
   developBuild:
     name: 'Build develop branch'
     uses:  ./.github/workflows/build_release.yml
-    if: ${{ needs.developPoll.outputs.updateRequired }}
+    if: ${{ needs.developPoll.outputs.updateRequired == true }}
     needs: 
     - developPoll
     with:

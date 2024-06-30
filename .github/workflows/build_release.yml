@@ -11,7 +11,7 @@ on:
         type: string
         required: true
       releaseVersion:
-        description: 'Version to be relased'
+        description: 'Version to be released'
         type: string
         required: true
 

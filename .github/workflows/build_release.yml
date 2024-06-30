@@ -1,9 +1,19 @@
 name: Build release
 on:
-  # New tag
-  push:
-    tags:
-      - v*
+  workflow_call:
+    inputs:
+      branch:
+        description: 'App branch'
+        type: string
+        default: 'main'
+      existingTag:
+        description: 'Current release tag'
+        type: string
+        required: true
+      releaseVersion:
+        description: 'Version to be relased'
+        type: string
+        required: true
 
 jobs:
   docker:
@@ -22,23 +32,6 @@ jobs:
             os: ubuntu-latest
 
     steps:
-    - name: Set environment variables
-      id: env
-      run: |
-        VERSION=${TAG//v}
-        echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
-        echo "BRANCH=$(curl -sL "http://services.sonarr.tv/v1/releases" | jq --arg version ${VERSION} -r 'first(.[] | select(.version | match($version; "i"))) | .branch')"
-      env:
-        TAG: ${{ github.ref_name }}
-
-    - name: Get last release
-      uses: InsonusK/get-latest-release@v1.0.1
-      id: last_release
-      with:
-        myToken: ${{ github.token }}
-        exclude_types: "draft"
-        view_top: 1
-
     - name: Login to GitHub Container Registry
       uses: docker/login-action@v3
       with:
@@ -59,17 +52,17 @@ jobs:
       uses: docker/setup-buildx-action@v3
 
     - name: Build and push
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v6
       continue-on-error: true
       id: buildx1
       with:
         build-args: |
-          VERSION=${{ steps.env.outputs.VERSION }}
+          VERSION=${{ inputs.releaseVersion }}
         context: .
         platforms: linux/${{ matrix.arch }}
         push: true
         tags: |
-          ghcr.io/${{ steps.repo_slug.outputs.result }}:${{ steps.env.outputs.VERSION }}
+          ghcr.io/${{ steps.repo_slug.outputs.result }}:${{ inputs.releaseVersion }}
           ghcr.io/${{ steps.repo_slug.outputs.result }}:latest
 
     # Temp workaround for failed builds
@@ -84,13 +77,13 @@ jobs:
       if: steps.buildx1.outcome != 'success'
       with:
         build-args: |
-          VERSION=${{ steps.env.outputs.VERSION }}
+          VERSION=${{ inputs.releaseVersion }}
         context: .
         platforms: linux/${{ matrix.arch }}
         push: true
         tags: |
-          ghcr.io/${{ steps.repo_slug.outputs.result }}:${{ steps.env.outputs.VERSION }}
-          ghcr.io/${{ steps.repo_slug.outputs.result }}:${{ steps.env.outputs.BRANCH }}
+          ghcr.io/${{ steps.repo_slug.outputs.result }}:${{ inputs.releaseVersion }}
+          ghcr.io/${{ steps.repo_slug.outputs.result }}:${{ inputs.Branch }}
           ghcr.io/${{ steps.repo_slug.outputs.result }}:latest
 
     - name: Generate changelog
@@ -98,12 +91,12 @@ jobs:
       uses: metcalfc/changelog-generator@v4.3.1
       with:
         mytoken: ${{ github.token }}
-        base-ref: '${{ steps.last_release.outputs.tag_name }}'
+        base-ref: '${{ inputs.existingTag }}'
 
     - name: Publish release
       uses: ncipollo/release-action@v1.14.0
       with:
-        prerelease: ${{ steps.env.outputs.BRANCH == 'develop' }}
+        prerelease: ${{ inputs.Branch == 'develop' }}
         body: |
           Changes in this Release: 
           ${{ steps.changelog.outputs.changelog }}

@@ -32,6 +32,14 @@ jobs:
             os: ubuntu-latest
 
     steps:
+    - name: Set environment variables
+      id: env
+      run: |
+        PACKAGE=$(curl -sL "http://services.sonarr.tv/v1/releases" | jq -r 'first(.[] | select(.version==env.VERSION) | .linuxMusl.x64.archive.url)')
+        echo "PACKAGE=${PACKAGE}" >> $GITHUB_OUTPUT
+      env:
+        VERSION: ${{ inputs.releaseVersion }}
+        
     - name: Login to GitHub Container Registry
       uses: docker/login-action@v3
       with:
@@ -57,6 +65,7 @@ jobs:
       id: buildx1
       with:
         build-args: |
+          PACKAGE=${{ steps.env.outputs.PACKAGE }}
           VERSION=${{ inputs.releaseVersion }}
         context: .
         platforms: linux/${{ matrix.arch }}
@@ -77,6 +86,7 @@ jobs:
       if: steps.buildx1.outcome != 'success'
       with:
         build-args: |
+          PACKAGE=${{ steps.env.outputs.PACKAGE }}
           VERSION=${{ inputs.releaseVersion }}
         context: .
         platforms: linux/${{ matrix.arch }}

@@ -36,7 +36,7 @@ jobs:
 
     outputs:
       tag: 'v${{ steps.current.outputs.VERSION }}'
-      update: ${{ steps.check_tag.outputs.exists == 'true' }}
+      update: ${{ steps.check_tag.outputs.exists == 'false' }}
       version: '${{ steps.upstream.outputs.VERSION }}'
 
     steps:

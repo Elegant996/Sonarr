@@ -20,7 +20,7 @@ on:
 
 jobs:
   check-latest:
-    name: Get latest tag
+    name: Check latest version
     runs-on: ubuntu-latest
 
     permissions:

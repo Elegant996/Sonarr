@@ -106,7 +106,7 @@ jobs:
     - name: Publish release
       uses: ncipollo/release-action@v1.14.0
       with:
-        prerelease: ${{ inputs.Branch == 'develop' }}
+        prerelease: ${{ inputs.Branch != 'main' }}
         tag: 'v${{ inputs.releaseVersion }}'
         body: |
           Changes in this Release: 

@@ -56,7 +56,7 @@ jobs:
           --url "https://api.github.com/repos/Elegant996/Sonarr/releases" \
           --header "Accept: application/vnd.github+json" \
           --header "Authorization: token ${{ github.token }}" \
-          | jq -r '.[] | select(.prerelease==${{ inputs.Branch != 'main' }}) | "export TAG=\(.tag_name)"')"
+          | jq -r '.[] | "export TAG=\(.tag_name)"')"
 
         echo "VERSION=${TAG//v}" >> $GITHUB_OUTPUT
 

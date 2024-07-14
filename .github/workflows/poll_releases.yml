@@ -43,7 +43,8 @@ jobs:
     - name: Get upstream version
       id: upstream
       run: |
-        VERSION=$(curl -sL "http://services.sonarr.tv/v1/releases" | jq -r 'first(.[] | select(.branch==env.BRANCH)) | .version')
+        VERSION=$(curl -sL "http://services.sonarr.tv/v1/releases" \
+        | jq -r 'first(.[] | select(.branch==env.BRANCH)) | .version')
 
         echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
       env:

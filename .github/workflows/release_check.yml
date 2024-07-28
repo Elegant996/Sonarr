@@ -27,6 +27,8 @@ jobs:
   developPoll:
     name: 'Check develop branch'
     uses: ./.github/workflows/poll_releases.yml
+    needs:
+    - mainPoll
     with:
       branch: 'develop'
 

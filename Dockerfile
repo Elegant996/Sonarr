@@ -43,5 +43,5 @@ LABEL org.opencontainers.image.description="Smart PVR for newsgroup and bittorre
 LABEL org.opencontainers.image.licenses="GPL-3.0-only"
 LABEL org.opencontainers.image.source="https://github.com/Sonarr/Sonarr"
 LABEL org.opencontainers.image.title="Sonarr"
-LABEL org.opencontainers.image.version="${VERSION}"
+LABEL org.opencontainers.image.version=${VERSION}
 LABEL org.opencontainers.image.url="https://sonarr.tv/"

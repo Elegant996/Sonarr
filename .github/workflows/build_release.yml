@@ -35,8 +35,10 @@ jobs:
     - name: Set environment variables
       id: env
       run: |
-        PACKAGE=$(curl -sL "http://services.sonarr.tv/v1/releases" | jq -r 'first(.[] | select(.version==env.VERSION) | .linuxMusl.x64.archive.url)')
-        echo "PACKAGE=${PACKAGE}" >> $GITHUB_OUTPUT
+        PACKAGE=$(curl -sL --request GET --url "http://services.sonarr.tv/v1/releases" \
+          | jq -r 'first(.[] | select(.version==env.VERSION) | .linuxMusl.x64.archive.url)')
+
+        echo "package=${PACKAGE}" >> $GITHUB_OUTPUT
       env:
         VERSION: ${{ inputs.releaseVersion }}
         
@@ -67,7 +69,7 @@ jobs:
       id: buildx1
       with:
         build-args: |
-          PACKAGE=${{ steps.env.outputs.PACKAGE }}
+          PACKAGE=${{ steps.env.outputs.package }}
           VERSION=${{ inputs.releaseVersion }}
         context: .
         platforms: linux/${{ matrix.arch }}
@@ -88,14 +90,14 @@ jobs:
       if: steps.buildx1.outcome != 'success'
       with:
         build-args: |
-          PACKAGE=${{ steps.env.outputs.PACKAGE }}
+          PACKAGE=${{ steps.env.outputs.package }}
           VERSION=${{ inputs.releaseVersion }}
         context: .
         platforms: linux/${{ matrix.arch }}
         push: true
         tags: |
           ghcr.io/${{ steps.repo_slug.outputs.result }}:${{ inputs.releaseVersion }}
-          ghcr.io/${{ steps.repo_slug.outputs.result }}:${{ inputs.Branch }}
+          ghcr.io/${{ steps.repo_slug.outputs.result }}:${{ inputs.branch }}
           ghcr.io/${{ steps.repo_slug.outputs.result }}:latest
 
     - name: Generate changelog
@@ -109,7 +111,7 @@ jobs:
     - name: Publish release
       uses: ncipollo/release-action@v1.14.0
       with:
-        prerelease: ${{ inputs.Branch != 'main' }}
+        prerelease: ${{ inputs.branch != 'main' }}
         tag: 'v${{ inputs.releaseVersion }}'
         body: |
           Changes in this Release: 

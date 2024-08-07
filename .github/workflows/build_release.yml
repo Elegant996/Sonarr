@@ -112,6 +112,7 @@ jobs:
       uses: ncipollo/release-action@v1.14.0
       with:
         prerelease: ${{ inputs.branch != 'main' }}
+        name: '${{ inputs.releaseVersion }}'
         tag: 'v${{ inputs.releaseVersion }}'
         body: |
           Changes in this Release: 

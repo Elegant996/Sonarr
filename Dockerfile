@@ -1,43 +1,40 @@
-FROM alpine:3.19 as stage
+FROM scratch AS source
 
-ARG PACKAGE
-ARG VERSION
+ADD ./sonarr.tar.gz /
 
-RUN apk add --no-cache \
-    curl \
-    xz
-RUN mkdir -p /opt/Sonarr
-RUN curl -o /tmp/sonarr.tar.gz -sL "${PACKAGE}"
-RUN tar xzf /tmp/sonarr.tar.gz -C /opt/Sonarr --strip-components=1
-RUN rm -rf /opt/Sonarr/Sonarr.Update /tmp/*
+FROM alpine:3.20 AS build-sysroot
 
-FROM alpine:3.19 as mirror
+# Prepare sysroot
+RUN mkdir -p /sysroot/etc/apk && cp -r /etc/apk/* /sysroot/etc/apk/
 
-RUN mkdir -p /out/etc/apk && cp -r /etc/apk/* /out/etc/apk/
-RUN apk add --no-cache --initdb -p /out \
+# Fetch runtime dependencies
+RUN apk add --no-cache --initdb -p /sysroot \
     alpine-baselayout \
     busybox \
-    chromaprint \
     gettext-libs \
     icu-libs \
     libcurl \
     libmediainfo \
     sqlite-libs \
     tzdata
-RUN rm -rf /out/etc/apk /out/lib/apk /out/var/cache
+RUN rm -rf /sysroot/etc/apk /sysroot/lib/apk /sysroot/var/cache
+
+# Install Sonarr to new system root
+RUN mkdir -p /sysroot/opt/Sonarr
+COPY --from=source /Sonarr /sysroot/opt/Sonarr
+RUN rm -rf /sysroot/opt/Sonarr/Sonarr.Update
 
 FROM scratch
-ENTRYPOINT []
-CMD []
-WORKDIR /
-COPY --from=mirror /out/ /
-COPY --from=stage /opt/Sonarr /opt/Sonarr/
+COPY --from=build-sysroot /sysroot/ /
 
 EXPOSE 8989 9898
 VOLUME [ "/data" ]
-ENV HOME /data
+ENV HOME=/data
 WORKDIR $HOME
+ENTRYPOINT []
 CMD ["/opt/Sonarr/Sonarr", "-nobrowser", "-data=/data"]
+
+ARG VERSION
 
 LABEL org.opencontainers.image.description="Smart PVR for newsgroup and bittorrent users."
 LABEL org.opencontainers.image.licenses="GPL-3.0-only"

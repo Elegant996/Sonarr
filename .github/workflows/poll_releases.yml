@@ -64,7 +64,7 @@ jobs:
   
     - name: Update Readme
       uses: jacobtomlinson/gha-find-replace@v3
-      if: inputs.branch == 'develop'
+      if: steps.check_tag.outputs.exists == 'false'
       with:
         find: '${{ env.currentVersion }}'
         replace: '${{ steps.upstream.outputs.version }}'

@@ -21,7 +21,6 @@ jobs:
     needs: 
     - mainPoll
     with:
-      currentVersion: '${{ needs.mainPoll.outputs.currentVersion }}'
       upstreamVersion: '${{ needs.mainPoll.outputs.upstreamVersion }}'
 
   developPoll:
@@ -40,5 +39,4 @@ jobs:
     - developPoll
     with:
       branch: 'develop'
-      currentVersion: '${{ needs.developPoll.outputs.currentVersion }}'
       upstreamVersion: '${{ needs.developPoll.outputs.upstreamVersion }}'

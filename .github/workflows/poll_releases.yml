@@ -8,20 +8,20 @@ on:
         default: 'main'
 
     outputs:
-      currentVersion:
-        description: 'Current version'
-        value: '${{ jobs.check-latest.outputs.current }}'
       updateRequired:
         description: 'New version found'
-        value: ${{ jobs.check-latest.outputs.update }}
+        value: ${{ jobs.check-upstream.outputs.update }}
       upstreamVersion:
         description: 'Upstream version'
-        value: '${{ jobs.check-latest.outputs.upstream }}'
+        value: '${{ jobs.check-upstream.outputs.version }}'
 
 jobs:
-  check-latest:
-    name: Check latest version
+  check-upstream:
+    name: Check upstream version
     runs-on: ubuntu-latest
+
+    env:
+      currentVersion: ${{ inputs.branch == 'main' && format('{0}', vars.RELEASE_VERSION) || format('{0}', vars.PRELEASE_VERSION) }}
 
     permissions:
       contents: write
@@ -35,9 +35,8 @@ jobs:
             os: ubuntu-latest
 
     outputs:
-      current: '${{ steps.current.outputs.version }}'
       update: ${{ steps.check_tag.outputs.exists == 'false' }}
-      upstream: '${{ steps.upstream.outputs.version }}'
+      version: '${{ steps.upstream.outputs.version }}'
 
     steps:
     - name: Get upstream (pre)release
@@ -54,22 +53,6 @@ jobs:
       env:
         DEVELOP: ${{ inputs.branch == 'develop' }}
 
-    - name: Get current releases
-      id: current
-      run: |
-        RELEASE=$(curl -sL --request GET \
-          --url "${{ github.api_url }}/repos/${{ github.repository }}/releases" \
-          --header "Accept: application/vnd.github+json" \
-          --header "Authorization: token ${{ github.token }}")
-        
-        TAG=$(echo ${RELEASE} | jq -r 'first | .tag_name')
-        RELEASE_TAG=$(echo ${RELEASE} | jq -r 'map(select(.prerelease==false)) | first | .tag_name')
-        PRERELEASE_TAG=$(echo ${RELEASE} | jq -r 'map(select(.prerelease==true)) | first | .tag_name')
-
-        echo "version=${TAG//v}" >> $GITHUB_OUTPUT
-        echo "releaseVersion=${RELEASE_TAG//v}" >> $GITHUB_OUTPUT
-        echo "prereleaseVersion=${PRERELEASE_TAG//v}" >> $GITHUB_OUTPUT
-
     - name: Check if tag exists
       uses: mukunku/tag-exists-action@v1.6.0
       id: check_tag
@@ -79,20 +62,11 @@ jobs:
     - uses: actions/checkout@v4
       if: steps.check_tag.outputs.exists == 'false'
   
-    - name: Update Readme (prerelease)
+    - name: Update Readme
       uses: jacobtomlinson/gha-find-replace@v3
       if: inputs.branch == 'develop'
       with:
-        find: '${{ steps.current.outputs.prereleaseVersion }}'
-        replace: '${{ steps.upstream.outputs.version }}'
-        include: 'README.md'
-        regex: false
-
-    - name: Update Readme (release)
-      uses: jacobtomlinson/gha-find-replace@v3
-      if: inputs.branch != 'develop'
-      with:
-        find: '${{ steps.current.outputs.releaseVersion }}'
+        find: '${{ env.currentVersion }}'
         replace: '${{ steps.upstream.outputs.version }}'
         include: 'README.md'
         regex: false

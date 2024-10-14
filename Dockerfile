@@ -24,6 +24,10 @@ RUN mkdir -p /sysroot/opt/Sonarr
 COPY --from=source /Sonarr /sysroot/opt/Sonarr
 RUN rm -rf /sysroot/opt/Sonarr/Sonarr.Update
 
+# Install entrypoint
+COPY --chmod 755 ./entrypoint.sh /sysroot/entrypoint.sh
+
+# Build image
 FROM scratch
 COPY --from=build-sysroot /sysroot/ /
 
@@ -31,7 +35,7 @@ EXPOSE 8989 9898
 VOLUME [ "/data" ]
 ENV HOME=/data
 WORKDIR $HOME
-ENTRYPOINT []
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/opt/Sonarr/Sonarr", "-nobrowser", "-data=/data"]
 
 ARG VERSION

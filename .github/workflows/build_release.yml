@@ -6,10 +6,6 @@ on:
         description: 'App branch'
         type: string
         default: 'main'
-      currentVersion:
-        description: 'Current version'
-        type: string
-        required: true
       upstreamVersion:
         description: 'Upstream version'
         type: string
@@ -17,7 +13,11 @@ on:
 
 jobs:
   docker:
+    name: Build upstream version
     runs-on: ubuntu-latest
+
+    env:
+      currentVersion: ${{ inputs.branch == 'main' && vars.RELEASE_VERSION || vars.PRELEASE_VERSION }}
 
     permissions:
       contents: write
@@ -67,7 +67,7 @@ jobs:
       id: buildx1
       with:
         build-args: |
-          VERSION=${{ inputs.upstreamVersion }}
+          VERSION=${{ inputs.upstreamVersion }}${{ inputs.branch == 'develop' && '-dev' }}
         context: .
         platforms: linux/${{ matrix.arch }}
         push: true
@@ -89,7 +89,7 @@ jobs:
       if: steps.buildx1.outcome != 'success'
       with:
         build-args: |
-          VERSION=${{ inputs.upstreamVersion }}
+          VERSION=${{ inputs.upstreamVersion }}${{ inputs.branch == 'develop' && '-dev' }}
         context: .
         platforms: linux/${{ matrix.arch }}
         push: true
@@ -105,7 +105,7 @@ jobs:
       with:
         mytoken: ${{ github.token }}
         head-ref: 'v${{ inputs.upstreamVersion }}'
-        base-ref: 'v${{ inputs.currentVersion }}'
+        base-ref: 'v${{ env.currentVersion }}'
 
     - name: Publish release
       uses: ncipollo/release-action@v1.14.0
@@ -116,3 +116,10 @@ jobs:
         body: |
           Changes in this Release: 
           ${{ steps.changelog.outputs.changelog }}
+
+    - run: |
+        if [[ ${{ inputs.branch == 'develop' }} ]]; then
+          gh variable set PRERELEASE_VERSION --body "${{ inputs.upstreamVersion }}"
+        else
+          gh variable set RELEASE_VERSION --body "${{ inputs.upstreamVersion }}"
+        fi

@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      currentVersion: ${{ inputs.branch == 'main' && vars.RELEASE_VERSION || vars.PRELEASE_VERSION }}
+      currentVersion: ${{ inputs.branch == 'main' && vars.RELEASE_VERSION || vars.PRERELEASE_VERSION }}
 
     permissions:
       contents: write

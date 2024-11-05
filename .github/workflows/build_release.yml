@@ -124,3 +124,5 @@ jobs:
         else
           gh variable set PRERELEASE_VERSION --body "${{ inputs.upstreamVersion }}"
         fi
+      env:
+        GH_TOKEN: ${{ github.token }}

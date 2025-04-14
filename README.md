@@ -7,7 +7,7 @@ This repo will periodically check Sonarr for updates and build a container image
 
 For `main` branch releases use:
 ```
-docker pull ghcr.io/elegant996/sonarr:4.0.11.2680
+docker pull ghcr.io/elegant996/sonarr:4.0.14.2939
 docker pull ghcr.io/elegant996/sonarr:main
 ```
 

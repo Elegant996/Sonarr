@@ -144,8 +144,6 @@ jobs:
       - name: Push commits
         run: |
           git push
-        env:
-          GH_TOKEN: ${{ secrets.WF_PAT }}
 
   publish-release:
     name: Publish releases
@@ -161,25 +159,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Generate changelog
-        id: changelog
-        uses: metcalfc/changelog-generator@v4.6.2
-        with:
-          mytoken: ${{ github.token }}
-          head-ref: ${{ matrix.tag }}
-          base-ref: ${{ !fromJSON(matrix.prerelease) && env.prerelease-tag || '' }}
-        env:
-          prerelease-tag: 'v${{ vars.PRERELEASE_VERSION }}'
-
       - name: Publish release
         uses: ncipollo/release-action@v1
         with:
-          prerelease: ${{ fromJSON(matrix.prerelease) }}
           name: ${{ matrix.version }}
+          prerelease: ${{ fromJSON(matrix.prerelease) }}
           tag: ${{ matrix.tag }}
-          body: |
-            Changes in this Release: 
-            ${{ steps.changelog.outputs.changelog }}
+          token: ${{ secrets.WF_PAT }}
 
       - name: Update repository variables
         run: |

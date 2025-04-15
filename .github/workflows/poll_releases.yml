@@ -131,7 +131,7 @@ jobs:
           if [[ -n "${{ env.release-version }}" ]] && [[ -n "${{ env.prerelease-version }}" ]]; then
             echo 'matrix-branch=["main","develop"]' >> $GITHUB_OUTPUT
             echo 'matrix-include=[{"tag":"v${{ env.release-version }}","version":"${{ env.release-version }}","branch":"${{ env.release-branch }}","prerelease":"false"},{"tag":"v${{ env.prerelease-version }}","version":"${{ env.prerelease-version }}","branch":"${{ env.prerelease-branch }}","prerelease":"true"}]' >> $GITHUB_OUTPUT
-          elif [[ -n "$${{ env.release-version }}" ]]; then
+          elif [[ -n "${{ env.release-version }}" ]]; then
             echo 'matrix-branch=["main"]' >> $GITHUB_OUTPUT
             echo 'matrix-include=[{"tag":"v${{ env.release-version }}","version":"${{ env.release-version }}","branch":"${{ env.release-branch }}","prerelease":"false"}]' >> $GITHUB_OUTPUT
           elif [[ -n "${{ env.prerelease-version }}" ]]; then

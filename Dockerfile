@@ -2,7 +2,7 @@ FROM scratch AS source
 
 ADD ./sonarr.tar.gz /
 
-FROM alpine:3.21 AS build-sysroot
+FROM alpine:3.22 AS build-sysroot
 
 # Prepare sysroot
 RUN mkdir -p /sysroot/etc/apk && cp -r /etc/apk/* /sysroot/etc/apk/

@@ -13,6 +13,6 @@ docker pull ghcr.io/elegant996/sonarr:main
 
 For `develop` branch pre-releases use:
 ```
-docker pull ghcr.io/elegant996/sonarr:5.0.0.2838
+docker pull ghcr.io/elegant996/sonarr:5.0.0.2870
 docker pull ghcr.io/elegant996/sonarr:develop
 ```

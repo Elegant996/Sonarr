@@ -11,6 +11,7 @@ RUN mkdir -p /sysroot/etc/apk && cp -r /etc/apk/* /sysroot/etc/apk/
 RUN apk add --no-cache --initdb -p /sysroot \
     alpine-baselayout \
     busybox \
+    dumb-init \
     gettext-libs \
     icu-libs \
     libcurl \
@@ -35,5 +36,5 @@ EXPOSE 8989 9898
 VOLUME [ "/data" ]
 ENV HOME=/data
 WORKDIR $HOME
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/usr/bin/dumb-init", "--", "/entrypoint.sh"]
 CMD ["/opt/Sonarr/Sonarr", "-nobrowser", "-data=/data"]

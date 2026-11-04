@@ -168,7 +168,7 @@ jobs:
         include: ${{ fromJSON(needs.commit-and-push.outputs.matrix-include) }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Publish release
         uses: ncipollo/release-action@v1
@@ -234,7 +234,7 @@ jobs:
             org.opencontainers.image.source="https://github.com/Sonarr/Sonarr"
             org.opencontainers.image.url="https://sonarr.tv/"
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ matrix.tag }}
 
